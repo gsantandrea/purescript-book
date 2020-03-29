@@ -27,7 +27,7 @@ import Web.Event.EventTarget (addEventListener, eventListener) as Event
 import Web.HTML (window) as HTML0
 import Web.HTML.Event.EventTypes (click) as Event
 import Web.HTML.HTMLDocument (body, toDocument,HTMLDocument) as HTML1
-import Web.HTML.HTMLElement (toNode, HTMLElement) as HTML
+import Web.HTML.HTMLElement (toNode,HTMLElement) as HTML3
 import Web.HTML.HTMLInputElement (fromElement, value) as HTMLInput
 import Web.HTML.Window (document,Window) as HTML
 import Web.DOM.Internal.Types(Node) as Web.DOM.Internal.Types
@@ -186,12 +186,12 @@ main = do
   window        <- HTML0.window :: Effect HTML.Window
   htmlDocument  <- HTML.document window :: Effect HTML1.HTMLDocument
   let document =  HTML1.toDocument htmlDocument :: DOM.Document 
-  maybeBody     <- HTML1.body htmlDocument :: Effect (Maybe HTML.HTMLElement)
+  maybeBody     <- HTML1.body htmlDocument :: Effect (Maybe HTML3.HTMLElement)
   case maybeBody of
     Nothing   -> Console.error "no body element found!"
-    Just (body::  HTML.HTMLElement) -> do
+    Just (body::  HTML3.HTMLElement) -> do
       ctrls <- controls document :: Effect DOM2.Element
-      let bodyNode = (HTML.toNode :: HTML.HTMLElement -> Web.DOM.Internal.Types.Node)(body::  HTML.HTMLElement) 
+      let bodyNode = (HTML3.toNode :: HTML3.HTMLElement -> Web.DOM.Internal.Types.Node)(body::  HTML3.HTMLElement) 
       DOM3.appendChild (DOM2.toNode (ctrls :: DOM2.Element)) bodyNode # void
       postsList :: DOM2.Element <- posts [] document
       DOM3.appendChild (DOM2.toNode postsList) bodyNode # void
