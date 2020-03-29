@@ -8,14 +8,15 @@ import Data.Argonaut.Core (Json)
 import Data.Argonaut.Core (toArray, toObject, toString) as JSON
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.Traversable (traverse)
 import Data.String.NonEmpty as NonEmpty
+import Data.Traversable (traverse)
 import Debug.Trace (spy)
 import Effect (Effect, foreachE)
 import Effect.Aff (Aff, error, launchAff_, throwError, try)
 import Effect.Class (liftEffect)
 import Effect.Console (error, log) as Console
 import Foreign.Object (lookup) as Object
+import Math (asin)
 import Web.DOM (Document) as DOM
 import Web.DOM.Document (createElement, toNonElementParentNode) as DOM
 import Web.DOM.Element (Element, setAttribute, setId, toEventTarget, toNode) as DOM
@@ -25,11 +26,11 @@ import Web.Event.Event (Event) as Event
 import Web.Event.EventTarget (addEventListener, eventListener) as Event
 import Web.HTML (window) as HTML
 import Web.HTML.Event.EventTypes (click) as Event
-import Web.HTML.HTMLDocument (body, toDocument) as HTML
-import Web.HTML.HTMLElement (toNode) as HTML
+import Web.HTML.HTMLDocument (body, toDocument,HTMLDocument) as HTML
+import Web.HTML.HTMLElement (toNode, HTMLElement) as HTML
 import Web.HTML.HTMLInputElement (fromElement, value) as HTMLInput
-import Web.HTML.Window (document) as HTML
-
+import Web.HTML.Window (document,Window) as HTML
+import Web.DOM.Internal.Types(Node) as Web.DOM.Internal.Types
 type RedditPost = { title :: String, selftext :: Maybe String, id :: String }
 
 textInput :: DOM.Document -> Effect DOM.Element
@@ -175,17 +176,22 @@ controls document = do
              id            <- Object.lookup "id" dataObj >>= JSON.toString
              pure { title, selftext, id }
 
+data Maybe1 (a ::Type)   = Nothing1 | Just1 a 
+
+
 main :: Effect Unit
 main = do
-  window        <- HTML.window
-  htmlDocument  <- HTML.document window
-  let document  =  HTML.toDocument htmlDocument
-  maybeBody     <- HTML.body htmlDocument
+  window        <- HTML.window :: Effect HTML.Window
+  htmlDocument  <- HTML.document window :: Effect HTML.HTMLDocument
+  let document =  HTML.toDocument htmlDocument :: DOM.Document 
+  maybeBody     <- HTML.body htmlDocument :: Effect (Maybe HTML.HTMLElement)
   case maybeBody of
     Nothing   -> Console.error "no body element found!"
-    Just body -> do
-      ctrls <- controls document
-      let bodyNode = HTML.toNode body
-      DOM.appendChild (DOM.toNode ctrls) bodyNode # void
-      postsList <- posts [] document
+    Just (body::  HTML.HTMLElement) -> do
+      ctrls <- controls document :: Effect DOM.Element
+      let bodyNode = (HTML.toNode :: HTML.HTMLElement -> Web.DOM.Internal.Types.Node)(body::  HTML.HTMLElement) 
+      DOM.appendChild (DOM.toNode (ctrls :: DOM.Element)) bodyNode # void
+      postsList :: DOM.Element <- posts [] document
       DOM.appendChild (DOM.toNode postsList) bodyNode # void
+
+

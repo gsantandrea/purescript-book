@@ -1,0 +1,17 @@
+{
+    "scripts": {
+        "build": "spago --jobs 10 build                                 --purs-args '--codegen js,sourcemaps --verbose-errors'",
+        "develop-purs": "spago --jobs 10 build --watch --clear-screen   --purs-args '--codegen js,sourcemaps --verbose-errors'",
+        "develop-app": "parcel --out-dir ./output/.dist ./html/index.html",
+        "verify": "yarn clean && spago verify-set",
+        "docs": "spago docs",
+        "clean": "while read gitIgnorePattern; do rm -rf .${gitIgnorePattern}; done < .gitignore"
+    },
+    "engines": {
+        "yarn": "^1.17.3"
+    },
+    "devDependencies": {
+        "purty": "^6.1.0",
+        "sass": "^1.26.3"
+    }
+}
