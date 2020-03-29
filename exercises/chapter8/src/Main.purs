@@ -18,86 +18,88 @@ import Effect.Console (error, log) as Console
 import Foreign.Object (lookup) as Object
 import Math (asin)
 import Web.DOM (Document) as DOM
-import Web.DOM.Document (createElement, toNonElementParentNode) as DOM
-import Web.DOM.Element (Element, setAttribute, setId, toEventTarget, toNode) as DOM
-import Web.DOM.Node (appendChild, parentNode, removeChild, setTextContent) as DOM
-import Web.DOM.NonElementParentNode (getElementById) as DOM
+import Web.DOM.Document (createElement, toNonElementParentNode) as DOM1
+import Web.DOM.Element (Element, setAttribute, setId, toEventTarget, toNode) as DOM2
+import Web.DOM.Node (appendChild, parentNode, removeChild, setTextContent) as DOM3
+import Web.DOM.NonElementParentNode (getElementById) as DOM4
 import Web.Event.Event (Event) as Event
 import Web.Event.EventTarget (addEventListener, eventListener) as Event
-import Web.HTML (window) as HTML
+import Web.HTML (window) as HTML0
 import Web.HTML.Event.EventTypes (click) as Event
-import Web.HTML.HTMLDocument (body, toDocument,HTMLDocument) as HTML
+import Web.HTML.HTMLDocument (body, toDocument,HTMLDocument) as HTML1
 import Web.HTML.HTMLElement (toNode, HTMLElement) as HTML
 import Web.HTML.HTMLInputElement (fromElement, value) as HTMLInput
 import Web.HTML.Window (document,Window) as HTML
 import Web.DOM.Internal.Types(Node) as Web.DOM.Internal.Types
+
+
 type RedditPost = { title :: String, selftext :: Maybe String, id :: String }
 
-textInput :: DOM.Document -> Effect DOM.Element
+textInput :: DOM.Document -> Effect DOM2.Element
 textInput document = do
-  element     <- DOM.createElement "input" document
-  DOM.setAttribute "type" "text" element
+  element     <- DOM1.createElement "input" document
+  DOM2.setAttribute "type" "text" element
   pure element
 
-label :: String -> DOM.Document -> Effect DOM.Element
+label :: String -> DOM.Document -> Effect DOM2.Element
 label text document = do
-  elem <- DOM.createElement "label" document
-  DOM.setTextContent text (DOM.toNode elem)
+  elem <- DOM1.createElement "label" document
+  DOM3.setTextContent text (DOM2.toNode elem)
   pure elem
 
-button :: String -> (Event.Event -> Effect Unit) -> DOM.Document -> Effect DOM.Element
+button :: String -> (Event.Event -> Effect Unit) -> DOM.Document -> Effect DOM2.Element
 button text onClick document = do
-  elem      <- DOM.createElement "button" document
-  _         <- DOM.setTextContent text (DOM.toNode elem)
-  let target = DOM.toEventTarget elem
+  elem      <- DOM1.createElement "button" document
+  _         <- DOM3.setTextContent text (DOM2.toNode elem)
+  let target = DOM2.toEventTarget elem
   listener  <- Event.eventListener onClick
   _         <- Event.addEventListener Event.click listener false target
   pure elem
 
-section :: DOM.Document -> Effect DOM.Element
-section document = DOM.createElement "section" document
+section :: DOM.Document -> Effect DOM2.Element
+section document = DOM1.createElement "section" document
 
-div :: DOM.Document -> Effect DOM.Element
-div = DOM.createElement "div"
+div :: DOM.Document -> Effect DOM2.Element
+div = DOM1.createElement "div"
 
-ul :: DOM.Document -> Effect DOM.Element
-ul = DOM.createElement "ul"
+ul :: DOM.Document -> Effect DOM2.Element
+ul = DOM1.createElement "ul"
 
-li :: DOM.Document -> Effect DOM.Element
-li = DOM.createElement "li"
+li :: DOM.Document -> Effect DOM2.Element
+li = DOM1.createElement "li"
 
-p :: DOM.Document -> Effect DOM.Element
-p = DOM.createElement "p"
+p :: DOM.Document -> Effect DOM2.Element
+p = DOM1.createElement "p"
 
-link :: String -> String -> DOM.Document -> Effect DOM.Element
+link :: String -> String -> DOM.Document -> Effect DOM2.Element
 link href text document = do
-  elem <- DOM.createElement "a" document
-  DOM.setTextContent text (DOM.toNode elem)
-  DOM.setAttribute "href" href elem
+  elem <- DOM1.createElement "a" document
+  DOM3.setTextContent text (DOM2.toNode elem)
+  DOM2.setAttribute "href" href elem
   pure elem
 
-post :: RedditPost -> DOM.Document -> Effect DOM.Element
+post :: RedditPost -> DOM.Document -> Effect DOM2.Element
 post redditPost document = do
   container <- div document
   a         <- link ("https://www.reddit.com/r/purescript/comments/" <> redditPost.id) redditPost.title document
   paragraph <- p document
   let text  = fromMaybe "" redditPost.selftext
-  DOM.setTextContent text (DOM.toNode paragraph)
-  let containerNode = DOM.toNode container
-  DOM.appendChild (DOM.toNode a) containerNode # void
-  DOM.appendChild (DOM.toNode paragraph) containerNode # void
+  DOM3.setTextContent text (DOM2.toNode paragraph)
+  let containerNode = DOM2.toNode container
+  DOM3.appendChild (DOM2.toNode a) containerNode # void
+  DOM3.appendChild (DOM2.toNode paragraph) containerNode # void
   pure container
 
-posts :: Array RedditPost -> DOM.Document -> Effect DOM.Element
+posts :: Array RedditPost -> DOM.Document -> Effect DOM2.Element
 posts redditPosts document = do
   list <- ul document
-  DOM.setId "posts" list
-  let listNode = DOM.toNode list
+  DOM2.setId "posts" list
+  let listNode = DOM2.toNode list
   foreachE redditPosts \redditPost -> do
     listItem <- li document
     item <- post redditPost document
-    DOM.appendChild (DOM.toNode item) (DOM.toNode listItem) # void
-    DOM.appendChild (DOM.toNode listItem) listNode # void
+    DOM3.appendChild (DOM2.toNode item) (DOM2.toNode listItem) # void
+    DOM3.appendChild (DOM2.toNode listItem) listNode # void
   pure list
 
 liftEither :: forall a b. String -> Either a b -> Aff b
@@ -107,17 +109,17 @@ liftEither _ (Right val) = pure val
 liftMaybe :: forall a. String -> Maybe a -> Aff a
 liftMaybe errorMessage = maybe (throwError (error errorMessage)) pure
 
-controls :: DOM.Document -> Effect DOM.Element
+controls :: DOM.Document -> Effect DOM2.Element
 controls document = do
   repoLabel   <- label "Subreddit" document
   input       <- textInput document
-  _           <- DOM.setId "subreddit" input
+  _           <- DOM2.setId "subreddit" input
   goButton    <- button "Go" onClick document
   container   <- section document
-  let containerNode = DOM.toNode container
-  DOM.appendChild (DOM.toNode repoLabel) containerNode # void
-  DOM.appendChild (DOM.toNode input) containerNode # void
-  DOM.appendChild (DOM.toNode goButton) containerNode # void
+  let containerNode = DOM2.toNode container
+  DOM3.appendChild (DOM2.toNode repoLabel) containerNode # void
+  DOM3.appendChild (DOM2.toNode input) containerNode # void
+  DOM3.appendChild (DOM2.toNode goButton) containerNode # void
   pure container
 
     where
@@ -132,23 +134,23 @@ controls document = do
         where
           doAjax :: Aff Unit
           doAjax = do
-            input         <- DOM.getElementById "subreddit" (DOM.toNonElementParentNode document)
+            input         <- DOM4.getElementById "subreddit" (DOM1.toNonElementParentNode document)
                               # liftEffect
                               >>= liftMaybe "Couldn't find subreddit text field"
             value         <- traverse HTMLInput.value (HTMLInput.fromElement input)
                               # liftEffect  >>= liftMaybe "Subreddit Element is not an input field"
             neVal         <- NonEmpty.fromString value # liftMaybe "Subreddit is empty"
             redditPosts   <- fetchPosts $ NonEmpty.toString neVal
-            postsSection  <- DOM.getElementById "posts" (DOM.toNonElementParentNode document)
+            postsSection  <- DOM4.getElementById "posts" (DOM1.toNonElementParentNode document)
                               # liftEffect
                               >>= liftMaybe "Couldn't find the 'posts' section"
-            let postsSectionNode = DOM.toNode postsSection
-            parent        <- DOM.parentNode (DOM.toNode postsSection)
+            let postsSectionNode = DOM2.toNode postsSection
+            parent        <- DOM3.parentNode (DOM2.toNode postsSection)
                               # liftEffect
                               >>= liftMaybe "Couldn't find the parent of the 'posts' section"
             newPostsElem  <- posts redditPosts document # liftEffect
-            DOM.removeChild postsSectionNode parent # liftEffect # void
-            DOM.appendChild (DOM.toNode newPostsElem) parent # liftEffect # void
+            DOM3.removeChild postsSectionNode parent # liftEffect # void
+            DOM3.appendChild (DOM2.toNode newPostsElem) parent # liftEffect # void
 
 
       fetchPosts :: String -> Aff (Array RedditPost)
@@ -181,17 +183,18 @@ data Maybe1 (a ::Type)   = Nothing1 | Just1 a
 
 main :: Effect Unit
 main = do
-  window        <- HTML.window :: Effect HTML.Window
-  htmlDocument  <- HTML.document window :: Effect HTML.HTMLDocument
-  let document =  HTML.toDocument htmlDocument :: DOM.Document 
-  maybeBody     <- HTML.body htmlDocument :: Effect (Maybe HTML.HTMLElement)
+  window        <- HTML0.window :: Effect HTML.Window
+  htmlDocument  <- HTML.document window :: Effect HTML1.HTMLDocument
+  let document =  HTML1.toDocument htmlDocument :: DOM.Document 
+  maybeBody     <- HTML1.body htmlDocument :: Effect (Maybe HTML.HTMLElement)
   case maybeBody of
     Nothing   -> Console.error "no body element found!"
     Just (body::  HTML.HTMLElement) -> do
-      ctrls <- controls document :: Effect DOM.Element
+      ctrls <- controls document :: Effect DOM2.Element
       let bodyNode = (HTML.toNode :: HTML.HTMLElement -> Web.DOM.Internal.Types.Node)(body::  HTML.HTMLElement) 
-      DOM.appendChild (DOM.toNode (ctrls :: DOM.Element)) bodyNode # void
-      postsList :: DOM.Element <- posts [] document
-      DOM.appendChild (DOM.toNode postsList) bodyNode # void
+      DOM3.appendChild (DOM2.toNode (ctrls :: DOM2.Element)) bodyNode # void
+      postsList :: DOM2.Element <- posts [] document
+      DOM3.appendChild (DOM2.toNode postsList) bodyNode # void
+      
 
 
